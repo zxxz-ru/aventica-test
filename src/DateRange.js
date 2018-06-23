@@ -8,11 +8,10 @@ export default class DateRange extends React.Component {
 		let xmlHttp = new XMLHttpRequest();
 		xmlHttp.open( "GET", request_string , false );
 		xmlHttp.send(null);
-console.log(JSON.parse(xmlHttp.responseText));
 		this.state = {
 //			date: props.date, 
     date: new Date(),
-		updateTime: new Date(JSON.parse(xmlHttp.responseText).currentFileTime)
+		updateTime: new Date(JSON.parse(xmlHttp.responseText).currentDateTime)
 		}
     this.renderView = this.renderView.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -112,9 +111,12 @@ onBlur() {
       onChange={function(event){this.onChange(event.target.value)}}></input>
       </div> 
 			<div>
-      {`Последнее изменение: ${this.state.updateTime.getDate() + '.' + 
-          this.state.updateTime.getMonth() > 9 ? '0'+this.state.updateTime.getMonth() :
-          this.state.updateTime.getMonth()}`}
+      {`Последнее изменение: ${this.state.updateTime.getDate()}.` +
+        `${this.state.updateTime.getMonth() < 9 ?
+            `0${this.state.updateTime.getMonth() + 1}` :
+            `${this.state.updateTime.getMonth() + 1}`
+          }`
+        }
       </div>
 			<div>
 				{
