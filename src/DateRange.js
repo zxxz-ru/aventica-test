@@ -3,16 +3,14 @@ import React from 'react';
   const request_string = 'http://worldclockapi.com/api/json/utc/now';
   // const request_string = 'https://yandex.com/time/sync.json?geo=213';
 
+
 export default class DateRange extends React.Component {
-	constructor(props) {
+constructor(props) {
     super(props);
-		let xmlHttp = new XMLHttpRequest();
-		xmlHttp.open( "GET", request_string , false );
-		xmlHttp.send(null);
 		this.state = {
     date: new Date(),
     periods: [],
-		updateTime: new Date(JSON.parse(xmlHttp.responseText).currentDateTime)
+    updateTime: new Date('1970-1-1'),
 		}
 
     this.renderView = this.renderView.bind(this);
@@ -21,6 +19,36 @@ export default class DateRange extends React.Component {
     this.onBlur = this.onBlur.bind(this);
 	}
 	
+getDate() {
+  return new Promise((resolve, reject) => {
+const xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = () => { 
+if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+resolve(xmlhttp.responseText);
+}
+};
+xmlhttp.onerror = () => reject(new Error());
+xmlhttp.open( "GET", request_string , true );
+xmlhttp.send(null);
+});
+}
+
+componentDidMount() {
+    this.getDate().then((res) => {
+this.setState(
+  {
+		updateTime: new Date(JSON.parse(res).currentDateTime)
+  }
+);
+    
+    })
+    .catch((e) => {
+      this.setState({
+        updateTime: new Date('1975-5-3')
+      });
+    });
+}
+
 onChange() {
   const value = this.myInput.value;
   const items = this.createItems(value);
@@ -83,11 +111,9 @@ let day = date.getDay();
 	}
 
 	createPeriod(date) {
-		let newDate = new Date(date);
-		newDate.setFullYear(newDate.getFullYear() + 1);
 		return {
-			start: new Date(date),
-			end: newDate
+      start: new Date(date),
+			end: new Date(date.setFullYear(date.getFullYear() + 1))
 		}
 	}
 
